@@ -102,11 +102,11 @@ export const TeacherDashboard: React.FC<Props> = ({ user, onCreateClick }) => {
 
       {/* Courses List */}
       <div id="courses" className="bg-white/40 dark:bg-stone-900/40 backdrop-blur-xl rounded-[2rem] border border-white/40 dark:border-white/5 shadow-lg shadow-stone-900/5 overflow-hidden">
-        <div className="p-8 border-b border-stone-200/50 dark:border-stone-700/50 flex justify-between items-center bg-white/30 dark:bg-stone-800/30">
+        <div className="p-8 border-b border-stone-200/50 dark:border-stone-700/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/30 dark:bg-stone-800/30">
           <h3 className="text-xl font-bold text-stone-800 dark:text-stone-100">Your Courses</h3>
           <button 
             onClick={onCreateClick}
-            className="flex items-center space-x-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-6 py-3 rounded-2xl text-sm font-bold shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 hover:scale-105 transition-all"
+            className="w-full md:w-auto flex items-center justify-center space-x-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-6 py-3 rounded-2xl text-sm font-bold shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 hover:scale-105 transition-all"
           >
             <Plus size={18} strokeWidth={3} />
             <span>New Course</span>
@@ -114,18 +114,18 @@ export const TeacherDashboard: React.FC<Props> = ({ user, onCreateClick }) => {
         </div>
         <div className="divide-y divide-stone-200/50 dark:divide-stone-700/50">
           {courses.map(course => (
-            <div key={course.id} className="p-6 hover:bg-white/50 dark:hover:bg-white/5 transition-colors group flex items-center justify-between">
+            <div key={course.id} className="p-6 hover:bg-white/50 dark:hover:bg-white/5 transition-colors group flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div>
                 <h4 className="font-bold text-lg text-stone-800 dark:text-stone-200 mb-1">{course.title}</h4>
-                <div className="flex items-center space-x-3 mt-1 text-sm font-medium text-stone-500 dark:text-stone-400">
+                <div className="flex flex-wrap items-center gap-3 mt-1 text-sm font-medium text-stone-500 dark:text-stone-400">
                   <span className="px-3 py-1 bg-stone-100 dark:bg-stone-800 rounded-full">{course.difficulty}</span>
-                  <span>•</span>
+                  <span className="hidden md:inline">•</span>
                   <span>{course.modules.length} Modules</span>
-                  <span>•</span>
+                  <span className="hidden md:inline">•</span>
                   <span>{course.enrolledCount} Students</span>
                 </div>
               </div>
-              <div className="flex items-center space-x-3 opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-4 group-hover:translate-x-0">
+              <div className="flex items-center space-x-3 w-full md:w-auto justify-end md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 <button 
                   className="p-3 text-stone-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-xl transition-colors"
                   title="View Analytics"

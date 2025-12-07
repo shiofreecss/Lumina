@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Course, Enrollment, Lesson, QuizQuestion } from '../types';
 import { db } from '../services/mockDb';
-import { CheckCircle, Circle, ChevronRight, ArrowLeft, Trophy, Play } from 'lucide-react';
+import { CheckCircle, Circle, ChevronRight, ArrowLeft, Trophy, Play, Menu, X } from 'lucide-react';
 
 interface Props {
   courseId: string;
@@ -17,6 +17,7 @@ export const CoursePlayer: React.FC<Props> = ({ courseId, studentId, onExit }) =
   const [quizAnswers, setQuizAnswers] = useState<Record<string, number>>({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [score, setScore] = useState(0);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -58,6 +59,8 @@ export const CoursePlayer: React.FC<Props> = ({ courseId, studentId, onExit }) =
       alert("Congratulations! You've completed the course!");
       onExit();
     }
+    // Scroll to top on new lesson
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const submitQuiz = () => {
@@ -71,10 +74,35 @@ export const CoursePlayer: React.FC<Props> = ({ courseId, studentId, onExit }) =
   };
 
   return (
-    <div className="flex h-[calc(100vh-6rem)] overflow-hidden bg-white/70 dark:bg-stone-900/70 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-white/50 dark:border-white/5 relative z-10">
-      {/* Sidebar */}
-      <div className="w-80 bg-white/40 dark:bg-black/20 border-r border-stone-200/50 dark:border-stone-800/50 flex flex-col">
-        <div className="p-6 border-b border-stone-200/50 dark:border-stone-800/50 bg-stone-50/30 dark:bg-stone-900/30">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)] overflow-hidden bg-white/70 dark:bg-stone-900/70 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-white/50 dark:border-white/5 relative z-10">
+      
+      {/* Mobile Toggle & Header */}
+      <div className="md:hidden p-4 border-b border-stone-200 dark:border-stone-800 flex justify-between items-center bg-white/50 dark:bg-stone-900/50">
+        <button onClick={onExit} className="text-stone-500">
+           <ArrowLeft size={24} />
+        </button>
+        <span className="font-bold text-stone-900 dark:text-white truncate max-w-[200px]">{course.title}</span>
+        <button 
+          onClick={() => setIsMobileSidebarOpen(true)}
+          className="p-2 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg"
+        >
+          <Menu size={24} />
+        </button>
+      </div>
+
+      {/* Sidebar (Desktop: Fixed, Mobile: Overlay/Drawer) */}
+      <div className={`
+        fixed inset-0 z-50 bg-white dark:bg-stone-950 md:bg-transparent md:static md:z-auto w-full md:w-80 flex flex-col transition-transform duration-300 md:transform-none md:border-r border-stone-200/50 dark:border-stone-800/50
+        ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        {/* Mobile Close Button */}
+        <div className="md:hidden p-4 flex justify-end">
+           <button onClick={() => setIsMobileSidebarOpen(false)} className="p-2 text-stone-500">
+             <X size={28} />
+           </button>
+        </div>
+
+        <div className="p-6 border-b border-stone-200/50 dark:border-stone-800/50 bg-stone-50/30 dark:bg-stone-900/30 hidden md:block">
           <button onClick={onExit} className="flex items-center text-stone-500 hover:text-amber-600 dark:hover:text-amber-400 text-sm font-bold mb-4 transition-colors">
             <ArrowLeft size={18} className="mr-1" /> Back to Dashboard
           </button>
@@ -89,7 +117,18 @@ export const CoursePlayer: React.FC<Props> = ({ courseId, studentId, onExit }) =
           </div>
         </div>
         
-        <div className="flex-1 overflow-y-auto p-4 space-y-8 scrollbar-hide">
+        {/* Mobile Progress Header in Menu */}
+        <div className="md:hidden px-6 pb-6">
+           <div className="flex items-center justify-between text-xs font-bold text-stone-500 dark:text-stone-400 mb-1">
+            <span>Course Progress</span>
+            <span>{enrollment.progress}%</span>
+          </div>
+          <div className="w-full bg-stone-200 dark:bg-stone-800 rounded-full h-2">
+            <div className="bg-gradient-to-r from-amber-500 to-yellow-400 h-2 rounded-full transition-all duration-700" style={{ width: `${enrollment.progress}%` }}></div>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-8 scrollbar-hide bg-white/40 dark:bg-black/20 md:bg-transparent">
           {course.modules.map((module, idx) => (
             <div key={module.id}>
               <h3 className="text-xs font-black text-stone-400 uppercase tracking-widest mb-3 pl-3">Module {idx + 1}: {module.title}</h3>
@@ -105,6 +144,7 @@ export const CoursePlayer: React.FC<Props> = ({ courseId, studentId, onExit }) =
                         setActiveLesson(lesson);
                         setQuizMode(false);
                         setQuizSubmitted(false);
+                        setIsMobileSidebarOpen(false);
                       }}
                       className={`w-full text-left px-4 py-3 rounded-2xl text-sm flex items-center transition-all duration-300 group ${
                         isActive
@@ -130,8 +170,8 @@ export const CoursePlayer: React.FC<Props> = ({ courseId, studentId, onExit }) =
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto p-8 md:p-16 relative scroll-smooth">
-        <div className="max-w-3xl mx-auto pb-20">
+      <div className="flex-1 overflow-y-auto p-6 md:p-16 relative scroll-smooth h-full">
+        <div className="max-w-3xl mx-auto pb-24 md:pb-20">
           {quizMode && activeLesson.quiz ? (
              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
                 <div className="flex items-center space-x-4 mb-8">
@@ -139,20 +179,20 @@ export const CoursePlayer: React.FC<Props> = ({ courseId, studentId, onExit }) =
                     <Trophy size={32} />
                   </div>
                   <div>
-                    <h1 className="text-3xl font-extrabold text-stone-900 dark:text-white">Knowledge Check</h1>
-                    <p className="text-stone-500 dark:text-stone-400">Test your understanding of {activeLesson.title}</p>
+                    <h1 className="text-2xl md:text-3xl font-extrabold text-stone-900 dark:text-white">Knowledge Check</h1>
+                    <p className="text-sm md:text-base text-stone-500 dark:text-stone-400">Test your understanding of {activeLesson.title}</p>
                   </div>
                 </div>
 
                 {activeLesson.quiz.map((q, idx) => (
-                  <div key={q.id} className="bg-white/60 dark:bg-stone-800/40 backdrop-blur-md p-8 rounded-[2rem] border border-white/40 dark:border-white/5 shadow-sm">
-                    <p className="font-bold text-xl text-stone-800 dark:text-stone-200 mb-6 flex gap-2">
+                  <div key={q.id} className="bg-white/60 dark:bg-stone-800/40 backdrop-blur-md p-6 md:p-8 rounded-[2rem] border border-white/40 dark:border-white/5 shadow-sm">
+                    <p className="font-bold text-lg md:text-xl text-stone-800 dark:text-stone-200 mb-6 flex gap-2">
                        <span className="text-amber-500">Q{idx + 1}.</span> 
                        {q.question}
                     </p>
                     <div className="space-y-3">
                       {q.options.map((opt, optIdx) => {
-                        let btnClass = "w-full text-left p-4 rounded-2xl border-2 transition-all font-medium text-lg relative overflow-hidden";
+                        let btnClass = "w-full text-left p-4 rounded-2xl border-2 transition-all font-medium text-base md:text-lg relative overflow-hidden";
                         if (quizSubmitted) {
                           if (optIdx === q.correctAnswerIndex) btnClass += " border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300";
                           else if (quizAnswers[q.id] === optIdx) btnClass += " border-red-300 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300";
@@ -185,11 +225,11 @@ export const CoursePlayer: React.FC<Props> = ({ courseId, studentId, onExit }) =
                       {score >= 70 ? "Great job! You've mastered this lesson." : "Review the material and try again to improve."}
                     </p>
                     {score >= 70 ? (
-                       <button onClick={handleCompleteLesson} className="px-8 py-3 bg-emerald-500 text-white rounded-2xl font-bold text-lg hover:bg-emerald-600 shadow-lg shadow-emerald-500/30 transition-all hover:-translate-y-1">
+                       <button onClick={handleCompleteLesson} className="w-full md:w-auto px-8 py-3 bg-emerald-500 text-white rounded-2xl font-bold text-lg hover:bg-emerald-600 shadow-lg shadow-emerald-500/30 transition-all hover:-translate-y-1">
                          Continue Journey
                        </button>
                     ) : (
-                      <button onClick={() => { setQuizSubmitted(false); setQuizAnswers({}); }} className="px-8 py-3 bg-stone-800 text-white dark:bg-white dark:text-stone-900 rounded-2xl font-bold text-lg hover:opacity-90 transition-all">
+                      <button onClick={() => { setQuizSubmitted(false); setQuizAnswers({}); }} className="w-full md:w-auto px-8 py-3 bg-stone-800 text-white dark:bg-white dark:text-stone-900 rounded-2xl font-bold text-lg hover:opacity-90 transition-all">
                         Retry Quiz
                       </button>
                     )}
@@ -206,17 +246,17 @@ export const CoursePlayer: React.FC<Props> = ({ courseId, studentId, onExit }) =
              </div>
           ) : (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="mb-10">
+              <div className="mb-8 md:mb-10">
                 <span className="inline-block px-3 py-1 mb-4 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 rounded-full uppercase tracking-wider">Lesson</span>
-                <h1 className="text-4xl md:text-5xl font-extrabold text-stone-900 dark:text-white leading-tight tracking-tight">{activeLesson.title}</h1>
+                <h1 className="text-3xl md:text-5xl font-extrabold text-stone-900 dark:text-white leading-tight tracking-tight">{activeLesson.title}</h1>
               </div>
 
               {/* Enhanced Typography for Lesson Content */}
               <div className="prose prose-stone dark:prose-invert prose-lg max-w-none mb-16">
                  {/* Simulate content rendering with better styling */}
-                 <div className="text-lg leading-loose text-stone-700 dark:text-stone-300 font-light space-y-6">
+                 <div className="text-base md:text-lg leading-loose text-stone-700 dark:text-stone-300 font-light space-y-6">
                     {activeLesson.content.split('\n').map((para, i) => (
-                      <p key={i} className={i === 0 ? "text-xl font-normal text-stone-800 dark:text-stone-200" : ""}>{para}</p>
+                      <p key={i} className={i === 0 ? "text-lg md:text-xl font-normal text-stone-800 dark:text-stone-200" : ""}>{para}</p>
                     ))}
                  </div>
               </div>
@@ -224,7 +264,7 @@ export const CoursePlayer: React.FC<Props> = ({ courseId, studentId, onExit }) =
               <div className="flex justify-end pt-10 border-t border-stone-200 dark:border-stone-700">
                 <button
                   onClick={handleCompleteLesson}
-                  className="group flex items-center space-x-3 bg-stone-900 dark:bg-white text-white dark:text-stone-900 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-stone-800 dark:hover:bg-stone-200 transition-all shadow-xl shadow-stone-900/20 hover:-translate-y-1"
+                  className="w-full md:w-auto group flex items-center justify-center space-x-3 bg-stone-900 dark:bg-white text-white dark:text-stone-900 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-stone-800 dark:hover:bg-stone-200 transition-all shadow-xl shadow-stone-900/20 hover:-translate-y-1"
                 >
                   <span>{activeLesson.quiz && activeLesson.quiz.length > 0 ? "Take Quiz" : "Complete Lesson"}</span>
                   <div className="bg-white/20 dark:bg-black/10 rounded-full p-1 group-hover:translate-x-1 transition-transform">

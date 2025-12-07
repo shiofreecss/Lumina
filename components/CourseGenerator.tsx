@@ -107,44 +107,44 @@ export const CourseGenerator: React.FC<Props> = ({ teacherId, onSuccess, onCance
   if (step === 'review' && generatedCourse) {
     return (
       <div className="max-w-5xl mx-auto space-y-6 pb-20">
-        <div className="flex items-center justify-between sticky top-4 z-30 p-4 bg-white/70 dark:bg-stone-900/70 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-white/5 shadow-lg shadow-stone-900/5 mb-8">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between sticky top-4 z-30 p-4 bg-white/70 dark:bg-stone-900/70 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-white/5 shadow-lg shadow-stone-900/5 mb-8 gap-4">
           <button onClick={() => setStep('input')} className="text-stone-500 hover:text-amber-600 font-medium flex items-center space-x-2 transition-colors">
             <ArrowLeft size={20} />
             <span>Back</span>
           </button>
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
              <button
               onClick={() => setIsEditing(!isEditing)}
-              className={`px-5 py-2.5 rounded-xl font-bold flex items-center space-x-2 transition-all ${
+              className={`flex-1 md:flex-none px-4 md:px-5 py-2.5 rounded-xl font-bold flex items-center justify-center space-x-2 transition-all ${
                 isEditing 
                   ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 ring-2 ring-amber-500/20' 
                   : 'bg-white/50 dark:bg-stone-800/50 text-stone-600 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-700'
               }`}
             >
               {isEditing ? <CheckCircle size={18} /> : <Edit3 size={18} />}
-              <span>{isEditing ? 'Done Editing' : 'Edit Content'}</span>
+              <span className="text-sm md:text-base">{isEditing ? 'Done' : 'Edit'}</span>
             </button>
             <button 
               onClick={handleGenerate} 
-              className="px-5 py-2.5 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-xl font-bold flex items-center space-x-2 transition-colors"
+              className="flex-1 md:flex-none px-4 md:px-5 py-2.5 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-xl font-bold flex items-center justify-center space-x-2 transition-colors"
             >
               <RefreshCw size={18} />
-              <span>Regenerate</span>
+              <span className="text-sm md:text-base">Regenerate</span>
             </button>
             <button 
               onClick={handleSave}
               disabled={isSaving}
-              className="px-8 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-lg hover:shadow-emerald-500/30 rounded-xl font-bold flex items-center space-x-2 transition-all disabled:opacity-50"
+              className="flex-1 md:flex-none px-6 md:px-8 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-lg hover:shadow-emerald-500/30 rounded-xl font-bold flex items-center justify-center space-x-2 transition-all disabled:opacity-50"
             >
               {isSaving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
-              <span>Publish</span>
+              <span className="text-sm md:text-base">Publish</span>
             </button>
           </div>
         </div>
 
         <div className="bg-white/40 dark:bg-stone-900/40 backdrop-blur-xl rounded-[2.5rem] border border-white/40 dark:border-white/5 shadow-xl shadow-stone-900/5 overflow-hidden">
           {/* Header Section */}
-          <div className="p-10 border-b border-stone-200/50 dark:border-stone-700/50 bg-gradient-to-br from-white/40 to-amber-50/40 dark:from-stone-800/40 dark:to-amber-900/10">
+          <div className="p-6 md:p-10 border-b border-stone-200/50 dark:border-stone-700/50 bg-gradient-to-br from-white/40 to-amber-50/40 dark:from-stone-800/40 dark:to-amber-900/10">
             {isEditing ? (
               <div className="space-y-6">
                 <div className="space-y-2">
@@ -165,7 +165,7 @@ export const CourseGenerator: React.FC<Props> = ({ teacherId, onSuccess, onCance
                       rows={3}
                     />
                 </div>
-                <div className="flex gap-6">
+                <div className="flex flex-col md:flex-row gap-6">
                    <div className="flex-1 space-y-2">
                       <label className="text-xs font-bold text-stone-400 uppercase tracking-widest">Duration</label>
                       <input 
@@ -191,8 +191,8 @@ export const CourseGenerator: React.FC<Props> = ({ teacherId, onSuccess, onCance
               </div>
             ) : (
               <>
-                <h1 className="text-4xl font-extrabold text-stone-900 dark:text-stone-50 mb-4 leading-tight">{generatedCourse.title}</h1>
-                <p className="text-xl text-stone-600 dark:text-stone-300 font-light leading-relaxed">{generatedCourse.description}</p>
+                <h1 className="text-3xl md:text-4xl font-extrabold text-stone-900 dark:text-stone-50 mb-4 leading-tight">{generatedCourse.title}</h1>
+                <p className="text-lg md:text-xl text-stone-600 dark:text-stone-300 font-light leading-relaxed">{generatedCourse.description}</p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <span className="px-4 py-1.5 bg-white/60 dark:bg-stone-800/60 backdrop-blur-sm border border-stone-200 dark:border-stone-700 rounded-full text-xs font-bold text-stone-600 dark:text-stone-300 uppercase tracking-wide">
                     {generatedCourse.difficulty}
@@ -211,7 +211,7 @@ export const CourseGenerator: React.FC<Props> = ({ teacherId, onSuccess, onCance
           </div>
 
           {/* Modules Section */}
-          <div className="p-8 space-y-6 bg-white/20 dark:bg-black/20">
+          <div className="p-6 md:p-8 space-y-6 bg-white/20 dark:bg-black/20">
             {generatedCourse.modules?.map((mod, modIdx) => (
               <div key={modIdx} className={`bg-white/60 dark:bg-stone-900/80 backdrop-blur-md rounded-3xl border transition-all duration-300 overflow-hidden ${expandedModule === mod.id ? 'border-amber-400 shadow-lg shadow-amber-500/10' : 'border-white/40 dark:border-white/5 hover:border-amber-300/50'}`}>
                 {/* Module Header */}
@@ -262,7 +262,7 @@ export const CourseGenerator: React.FC<Props> = ({ teacherId, onSuccess, onCance
                       <div key={lIdx} className="bg-white dark:bg-stone-800 p-6 rounded-2xl border border-stone-200 dark:border-stone-700 shadow-sm">
                         {isEditing ? (
                           <div className="space-y-4">
-                             <div className="flex gap-4">
+                             <div className="flex flex-col md:flex-row gap-4">
                                 <div className="flex-1">
                                   <label className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1 block">Lesson Title</label>
                                   <input 
@@ -272,7 +272,7 @@ export const CourseGenerator: React.FC<Props> = ({ teacherId, onSuccess, onCance
                                     className="w-full font-bold p-3 bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl dark:text-stone-100"
                                   />
                                 </div>
-                                <div className="w-24">
+                                <div className="w-full md:w-24">
                                   <label className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1 block">Mins</label>
                                   <input 
                                     type="number"
@@ -292,12 +292,12 @@ export const CourseGenerator: React.FC<Props> = ({ teacherId, onSuccess, onCance
                              </div>
                           </div>
                         ) : (
-                          <div className="flex items-center justify-between">
+                          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
                             <div>
                                <span className="font-bold text-stone-700 dark:text-stone-200 block text-lg mb-1">{lIdx + 1}. {lesson.title}</span>
                                <span className="text-sm text-stone-400 line-clamp-1">{lesson.content.substring(0, 80)}...</span>
                             </div>
-                            <span className="text-stone-500 dark:text-stone-400 text-xs font-bold bg-stone-100 dark:bg-stone-900 px-3 py-1 rounded-full whitespace-nowrap ml-4 border border-stone-200 dark:border-stone-700">
+                            <span className="text-stone-500 dark:text-stone-400 text-xs font-bold bg-stone-100 dark:bg-stone-900 px-3 py-1 rounded-full whitespace-nowrap md:ml-4 border border-stone-200 dark:border-stone-700">
                               {lesson.durationMinutes} min • Quiz: {lesson.quiz?.length || 0} Qs
                             </span>
                           </div>
@@ -315,7 +315,7 @@ export const CourseGenerator: React.FC<Props> = ({ teacherId, onSuccess, onCance
   }
 
   return (
-    <div className="max-w-2xl mx-auto bg-white/50 dark:bg-stone-900/50 backdrop-blur-xl p-10 rounded-[3rem] shadow-2xl shadow-stone-900/5 border border-white/40 dark:border-white/5 relative overflow-hidden">
+    <div className="max-w-2xl mx-auto bg-white/50 dark:bg-stone-900/50 backdrop-blur-xl p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] shadow-2xl shadow-stone-900/5 border border-white/40 dark:border-white/5 relative overflow-hidden">
        {/* Decorative */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-amber-400/20 to-yellow-300/20 rounded-full blur-[80px] -mr-32 -mt-32 pointer-events-none"></div>
 
@@ -388,17 +388,17 @@ export const CourseGenerator: React.FC<Props> = ({ teacherId, onSuccess, onCance
             />
         </div>
 
-        <div className="pt-8 flex items-center justify-end space-x-4 border-t border-stone-200/50 dark:border-stone-700/50 mt-8">
+        <div className="pt-8 flex flex-col md:flex-row items-center justify-end space-y-3 md:space-y-0 md:space-x-4 border-t border-stone-200/50 dark:border-stone-700/50 mt-8">
           <button 
             onClick={onCancel}
-            className="px-8 py-3.5 text-stone-500 dark:text-stone-400 font-bold hover:bg-stone-100 dark:hover:bg-stone-800 rounded-2xl transition-colors"
+            className="w-full md:w-auto px-8 py-3.5 text-stone-500 dark:text-stone-400 font-bold hover:bg-stone-100 dark:hover:bg-stone-800 rounded-2xl transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleGenerate}
             disabled={!formData.topic}
-            className="px-10 py-3.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-white font-bold text-lg rounded-2xl shadow-xl shadow-amber-500/30 hover:shadow-amber-500/40 hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center space-x-2"
+            className="w-full md:w-auto px-10 py-3.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-white font-bold text-lg rounded-2xl shadow-xl shadow-amber-500/30 hover:shadow-amber-500/40 hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
           >
             <Wand2 size={22} />
             <span>Generate Magic</span>
