@@ -18,9 +18,10 @@ interface LayoutProps {
   user: User | null;
   onLogout: () => void;
   title?: string;
+  onDashboard: () => void;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children, user, onLogout, title }) => {
+export const Layout: React.FC<LayoutProps> = ({ children, user, onLogout, title, onDashboard }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const { theme, toggleTheme } = useTheme();
 
@@ -31,6 +32,14 @@ export const Layout: React.FC<LayoutProps> = ({ children, user, onLogout, title 
   const NavItem = ({ icon: Icon, label, href }: { icon: any, label: string, href: string }) => (
     <a 
       href={href}
+      onClick={(e) => {
+        // If navigation is internal to dashboard (hash link), switch view to dashboard
+        if (href.startsWith('#')) {
+          onDashboard();
+          // Close mobile menu if open
+          setIsMobileMenuOpen(false);
+        }
+      }}
       className="group flex items-center space-x-3 px-6 py-4 text-stone-600 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-400 rounded-2xl transition-all duration-300 hover:bg-white/50 dark:hover:bg-black/20 hover:shadow-lg hover:shadow-amber-500/10"
     >
       <Icon size={22} className="group-hover:scale-110 transition-transform" />
@@ -116,6 +125,25 @@ export const Layout: React.FC<LayoutProps> = ({ children, user, onLogout, title 
           </button>
         </div>
       </div>
+      
+       {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-20 bg-stone-50 dark:bg-stone-950 pt-20 px-6 space-y-4">
+           {user.role === 'TEACHER' ? (
+            <>
+              <NavItem icon={LayoutDashboard} label="Dashboard" href="#" />
+              <NavItem icon={BookOpen} label="My Courses" href="#courses" />
+              <NavItem icon={Award} label="Analytics" href="#analytics" />
+            </>
+          ) : (
+            <>
+              <NavItem icon={LayoutDashboard} label="Dashboard" href="#" />
+              <NavItem icon={BookOpen} label="Explore" href="#browse" />
+              <NavItem icon={GraduationCap} label="Progress" href="#progress" />
+            </>
+          )}
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="flex-1 md:ml-[20rem] p-6 md:p-10 pt-24 md:pt-10 min-h-screen transition-all">

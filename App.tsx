@@ -69,7 +69,12 @@ function AppContent() {
   }
 
   return (
-    <Layout user={user} onLogout={handleLogout} title={title}>
+    <Layout 
+      user={user} 
+      onLogout={handleLogout} 
+      title={title}
+      onDashboard={() => setView('dashboard')}
+    >
       {content}
     </Layout>
   );

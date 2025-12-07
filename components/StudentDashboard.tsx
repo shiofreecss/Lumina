@@ -49,7 +49,7 @@ export const StudentDashboard: React.FC<Props> = ({ user, onPlayCourse }) => {
   return (
     <div className="space-y-10 max-w-7xl mx-auto pb-10">
       {/* Top Section: Stats & Streak */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div id="progress" className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Streak Card - Golden Gradient */}
         <div className="bg-gradient-to-br from-amber-400 to-yellow-600 rounded-[2.5rem] p-8 text-white shadow-2xl shadow-amber-500/30 relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-8 opacity-20 transform group-hover:scale-110 transition-transform duration-700">
@@ -159,8 +159,8 @@ export const StudentDashboard: React.FC<Props> = ({ user, onPlayCourse }) => {
       </div>
 
       {/* Available Courses */}
-      <div>
-        <h2 className="text-2xl font-bold text-stone-800 dark:text-stone-100 mb-6 flex items-center gap-2" id="browse">
+      <div id="browse">
+        <h2 className="text-2xl font-bold text-stone-800 dark:text-stone-100 mb-6 flex items-center gap-2">
             <ArrowRight className="text-amber-500" />
             Explore New Topics
         </h2>

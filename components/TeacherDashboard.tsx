@@ -67,7 +67,7 @@ export const TeacherDashboard: React.FC<Props> = ({ user, onCreateClick }) => {
       </div>
 
       {/* Analytics Chart */}
-      <div className="bg-white/40 dark:bg-stone-900/40 backdrop-blur-xl p-8 rounded-[2rem] border border-white/40 dark:border-white/5 shadow-lg shadow-stone-900/5">
+      <div id="analytics" className="bg-white/40 dark:bg-stone-900/40 backdrop-blur-xl p-8 rounded-[2rem] border border-white/40 dark:border-white/5 shadow-lg shadow-stone-900/5">
         <h3 className="text-xl font-bold text-stone-800 dark:text-stone-100 mb-8 flex items-center gap-2">
           <TrendingUp className="text-amber-500" />
           Engagement Trends
@@ -101,7 +101,7 @@ export const TeacherDashboard: React.FC<Props> = ({ user, onCreateClick }) => {
       </div>
 
       {/* Courses List */}
-      <div className="bg-white/40 dark:bg-stone-900/40 backdrop-blur-xl rounded-[2rem] border border-white/40 dark:border-white/5 shadow-lg shadow-stone-900/5 overflow-hidden">
+      <div id="courses" className="bg-white/40 dark:bg-stone-900/40 backdrop-blur-xl rounded-[2rem] border border-white/40 dark:border-white/5 shadow-lg shadow-stone-900/5 overflow-hidden">
         <div className="p-8 border-b border-stone-200/50 dark:border-stone-700/50 flex justify-between items-center bg-white/30 dark:bg-stone-800/30">
           <h3 className="text-xl font-bold text-stone-800 dark:text-stone-100">Your Courses</h3>
           <button 
