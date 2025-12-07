@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Course, Enrollment, Lesson, QuizQuestion } from '../types';
 import { db } from '../services/mockDb';
-import { CheckCircle, Circle, ChevronRight, ArrowLeft, Trophy, Play, Menu, X } from 'lucide-react';
+import { CheckCircle, Circle, ChevronRight, ArrowLeft, Trophy, Play, Menu, X, Presentation, FileText, ExternalLink } from 'lucide-react';
 
 interface Props {
   courseId: string;
@@ -250,6 +250,32 @@ export const CoursePlayer: React.FC<Props> = ({ courseId, studentId, onExit }) =
                 <span className="inline-block px-3 py-1 mb-4 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 rounded-full uppercase tracking-wider">Lesson</span>
                 <h1 className="text-3xl md:text-5xl font-extrabold text-stone-900 dark:text-white leading-tight tracking-tight">{activeLesson.title}</h1>
               </div>
+
+              {/* Lesson Resources Section */}
+              {activeLesson.resources && activeLesson.resources.length > 0 && (
+                <div className="mb-10 grid grid-cols-1 md:grid-cols-2 gap-4">
+                   {activeLesson.resources.map(res => (
+                     <a 
+                      key={res.id} 
+                      href={res.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="group flex items-center p-4 bg-white/50 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700 rounded-2xl hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:border-amber-200 dark:hover:border-amber-800 transition-all"
+                     >
+                       <div className={`p-3 rounded-xl mr-4 ${res.type === 'slide' ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'}`}>
+                         {res.type === 'slide' ? <Presentation size={24} /> : <FileText size={24} />}
+                       </div>
+                       <div className="flex-1 min-w-0">
+                         <h4 className="font-bold text-stone-800 dark:text-stone-100 truncate group-hover:text-amber-700 dark:group-hover:text-amber-400">{res.title}</h4>
+                         <p className="text-xs text-stone-500 dark:text-stone-400 flex items-center mt-1">
+                           <span className="capitalize">{res.type}</span>
+                           <ExternalLink size={10} className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                         </p>
+                       </div>
+                     </a>
+                   ))}
+                </div>
+              )}
 
               {/* Enhanced Typography for Lesson Content */}
               <div className="prose prose-stone dark:prose-invert prose-lg max-w-none mb-16">

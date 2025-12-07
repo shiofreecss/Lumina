@@ -5,13 +5,14 @@ import { TeacherDashboard } from './components/TeacherDashboard';
 import { StudentDashboard } from './components/StudentDashboard';
 import { CourseGenerator } from './components/CourseGenerator';
 import { CoursePlayer } from './components/CoursePlayer';
+import { CourseEditor } from './components/CourseEditor';
 import { User, UserRole } from './types';
 import { db } from './services/mockDb';
 import { ThemeProvider } from './ThemeContext';
 
 function AppContent() {
   const [user, setUser] = useState<User | null>(null);
-  const [view, setView] = useState<'dashboard' | 'create-course' | 'play-course'>('dashboard');
+  const [view, setView] = useState<'dashboard' | 'create-course' | 'play-course' | 'edit-course'>('dashboard');
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,6 +50,14 @@ function AppContent() {
       />
     );
     title = "Create New Course";
+  } else if (view === 'edit-course' && user.role === 'TEACHER' && activeCourseId) {
+    content = (
+      <CourseEditor 
+        courseId={activeCourseId} 
+        onClose={() => { setView('dashboard'); setActiveCourseId(null); }} 
+      />
+    );
+    title = ""; // Editor has its own header
   } else if (view === 'play-course' && user.role === 'STUDENT' && activeCourseId) {
     content = (
       <CoursePlayer 
@@ -57,10 +66,16 @@ function AppContent() {
         onExit={() => { setView('dashboard'); setActiveCourseId(null); }}
       />
     );
-    title = "";
+    title = ""; // Player has its own header
   } else {
     if (user.role === 'TEACHER') {
-      content = <TeacherDashboard user={user} onCreateClick={() => setView('create-course')} />;
+      content = (
+        <TeacherDashboard 
+          user={user} 
+          onCreateClick={() => setView('create-course')}
+          onEditClick={(id) => { setActiveCourseId(id); setView('edit-course'); }}
+        />
+      );
       title = "Teacher Dashboard";
     } else {
       content = <StudentDashboard user={user} onPlayCourse={(id) => { setActiveCourseId(id); setView('play-course'); }} />;

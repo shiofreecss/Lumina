@@ -9,6 +9,13 @@ export interface User {
   lastActivityDate: string | null; // ISO Date string
 }
 
+export interface Resource {
+  id: string;
+  title: string;
+  type: 'slide' | 'document' | 'video';
+  url: string;
+}
+
 export interface QuizQuestion {
   id: string;
   question: string;
@@ -23,6 +30,7 @@ export interface Lesson {
   durationMinutes: number;
   isCompleted?: boolean; // For student tracking
   quiz?: QuizQuestion[];
+  resources?: Resource[];
 }
 
 export interface Module {

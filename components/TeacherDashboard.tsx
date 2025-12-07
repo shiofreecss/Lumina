@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Course, User } from '../types';
 import { db } from '../services/mockDb';
-import { Plus, Users, BookOpen, TrendingUp, Trash2, ExternalLink } from 'lucide-react';
+import { Plus, Users, BookOpen, TrendingUp, Trash2, ExternalLink, Edit3 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface Props {
   user: User;
   onCreateClick: () => void;
+  onEditClick: (courseId: string) => void;
 }
 
-export const TeacherDashboard: React.FC<Props> = ({ user, onCreateClick }) => {
+export const TeacherDashboard: React.FC<Props> = ({ user, onCreateClick, onEditClick }) => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -127,10 +128,11 @@ export const TeacherDashboard: React.FC<Props> = ({ user, onCreateClick }) => {
               </div>
               <div className="flex items-center space-x-3 w-full md:w-auto justify-end md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 <button 
+                  onClick={() => onEditClick(course.id)}
                   className="p-3 text-stone-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-xl transition-colors"
-                  title="View Analytics"
+                  title="Edit Course"
                 >
-                  <ExternalLink size={20} />
+                  <Edit3 size={20} />
                 </button>
                 <button 
                   onClick={() => handleDelete(course.id)}
