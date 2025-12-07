@@ -1,0 +1,5 @@
+{
+  "name": "Lumina Learning",
+  "description": "A full-stack educational platform featuring Gemini-powered course generation, role-based dashboards, and student streak tracking.",
+  "requestFramePermissions": []
+}
