@@ -7,32 +7,54 @@ import { CourseGenerator } from './components/CourseGenerator';
 import { CoursePlayer } from './components/CoursePlayer';
 import { CourseEditor } from './components/CourseEditor';
 import { User, UserRole } from './types';
-import { db } from './services/mockDb';
+import { db, authService } from './services/mockDb';
 import { ThemeProvider } from './ThemeContext';
+import { supabase } from './services/supabase';
 
 function AppContent() {
   const [user, setUser] = useState<User | null>(null);
   const [view, setView] = useState<'dashboard' | 'create-course' | 'play-course' | 'edit-course'>('dashboard');
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem('lumina_user');
-    if (stored) {
-      setUser(JSON.parse(stored));
-    }
+    // Check active session on mount
+    const checkSession = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session && session.user) {
+            const profile = await db.getUserProfile(session.user.id);
+            if (profile) setUser(profile);
+        }
+        setLoading(false);
+    };
+    checkSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+             const profile = await db.getUserProfile(session.user.id);
+             if (profile) setUser(profile);
+        } else if (event === 'SIGNED_OUT') {
+            setUser(null);
+            setView('dashboard');
+        }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleLogin = async (role: UserRole) => {
-    const loggedInUser = await db.login(role);
-    setUser(loggedInUser);
-    localStorage.setItem('lumina_user', JSON.stringify(loggedInUser));
+    // Role handling is now implicit via the profile fetched from Supabase
+    // This callback helps trigger UI updates if needed, but the useEffect handles state
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await authService.logout();
     setUser(null);
-    localStorage.removeItem('lumina_user');
     setView('dashboard');
   };
+
+  if (loading) return <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex items-center justify-center text-stone-400">Loading Lumina...</div>;
 
   if (!user) {
     return <Auth onLogin={handleLogin} />;
@@ -79,7 +101,7 @@ function AppContent() {
       title = "Teacher Dashboard";
     } else {
       content = <StudentDashboard user={user} onPlayCourse={(id) => { setActiveCourseId(id); setView('play-course'); }} />;
-      title = `Welcome back, ${user.name.split(' ')[0]}!`;
+      title = `Welcome back, ${user.name ? user.name.split(' ')[0] : 'Student'}!`;
     }
   }
 
