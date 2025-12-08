@@ -20,12 +20,17 @@ function AppContent() {
   useEffect(() => {
     // Check active session on mount
     const checkSession = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session && session.user) {
-            const profile = await db.getUserProfile(session.user.id);
-            if (profile) setUser(profile);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session && session.user) {
+                const profile = await db.getUserProfile(session.user.id);
+                if (profile) setUser(profile);
+            }
+        } catch (e) {
+            console.error("Session check failed", e);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
     checkSession();
 
@@ -54,7 +59,7 @@ function AppContent() {
     setView('dashboard');
   };
 
-  if (loading) return <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex items-center justify-center text-stone-400">Loading Lumina...</div>;
+  if (loading) return <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex items-center justify-center text-stone-400 font-bold animate-pulse">Initializing Lumina...</div>;
 
   if (!user) {
     return <Auth onLogin={handleLogin} />;

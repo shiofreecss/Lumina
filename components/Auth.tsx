@@ -15,6 +15,7 @@ export const Auth: React.FC<Props> = ({ onLogin }) => {
   const [name, setName] = useState('');
   const [activeTab, setActiveTab] = useState<UserRole>('STUDENT');
   const [errorMsg, setErrorMsg] = useState('');
+  const [infoMsg, setInfoMsg] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,6 +24,7 @@ export const Auth: React.FC<Props> = ({ onLogin }) => {
 
     setLoading(true);
     setErrorMsg('');
+    setInfoMsg('');
 
     try {
       if (isLoginMode) {
@@ -35,15 +37,26 @@ export const Auth: React.FC<Props> = ({ onLogin }) => {
             if (profile) {
                 onLogin(profile.role);
             } else {
-                setErrorMsg("Profile not found.");
+                setErrorMsg("Profile not found. Please contact support.");
             }
         }
       } else {
         const { data, error } = await authService.signUp(email, password, name, activeTab);
         if (error) throw error;
-        if (data.user) {
-            // Auto login after signup
-            onLogin(activeTab);
+        
+        if (data.user && !data.session) {
+            // Email confirmation required
+            setInfoMsg("Account created! Please check your email to confirm your registration before logging in.");
+            setIsLoginMode(true);
+        } else if (data.user && data.session) {
+            // Auto login after signup (if email confirm disabled)
+            const profile = await db.getUserProfile(data.user.id);
+            if (profile) {
+                onLogin(profile.role);
+            } else {
+                // Should be handled by self-healing now, but just in case
+                onLogin(activeTab); 
+            }
         }
       }
     } catch (err: any) {
@@ -87,13 +100,13 @@ export const Auth: React.FC<Props> = ({ onLogin }) => {
             {/* Login/Signup Toggle */}
             <div className="flex justify-center space-x-6 mb-6">
                 <button 
-                    onClick={() => setIsLoginMode(true)}
+                    onClick={() => { setIsLoginMode(true); setErrorMsg(''); setInfoMsg(''); }}
                     className={`text-sm font-bold pb-1 border-b-2 transition-colors ${isLoginMode ? 'text-amber-600 border-amber-500' : 'text-stone-400 border-transparent hover:text-stone-600'}`}
                 >
                     Log In
                 </button>
                 <button 
-                    onClick={() => setIsLoginMode(false)}
+                    onClick={() => { setIsLoginMode(false); setErrorMsg(''); setInfoMsg(''); }}
                     className={`text-sm font-bold pb-1 border-b-2 transition-colors ${!isLoginMode ? 'text-amber-600 border-amber-500' : 'text-stone-400 border-transparent hover:text-stone-600'}`}
                 >
                     Sign Up
@@ -180,8 +193,14 @@ export const Auth: React.FC<Props> = ({ onLogin }) => {
                 </div>
               </div>
 
+              {infoMsg && (
+                  <div className="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm rounded-xl font-medium text-center border border-blue-200 dark:border-blue-800">
+                      {infoMsg}
+                  </div>
+              )}
+
               {errorMsg && (
-                  <div className="p-3 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm rounded-xl font-medium text-center">
+                  <div className="p-3 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm rounded-xl font-medium text-center border border-red-200 dark:border-red-800">
                       {errorMsg}
                   </div>
               )}

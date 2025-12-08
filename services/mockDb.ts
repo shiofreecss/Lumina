@@ -108,17 +108,61 @@ class DatabaseService {
       };
     }
 
+    // 1. Try to get from Profiles table
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
     
-    if (error) {
-      console.error("Error fetching profile:", error);
-      return null;
+    if (data) {
+        // Map snake_case DB fields to camelCase TS interface
+        return {
+            id: data.id,
+            email: data.email,
+            name: data.name,
+            role: data.role as UserRole,
+            streak: data.streak || 0,
+            lastActivityDate: data.last_activity_date
+        };
     }
-    return data as User;
+
+    // 2. Self-Healing: If profile missing (e.g. RLS blocked insert during signup), 
+    // try to recover from Auth Metadata
+    if (error || !data) {
+        console.warn("Profile missing in table, attempting recovery from Auth Metadata...");
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user && user.id === userId) {
+             const meta = user.user_metadata;
+             // Only proceed if we have valid metadata
+             if (meta && meta.name) {
+                 const newProfile = {
+                     id: user.id,
+                     email: user.email || '',
+                     name: meta.name,
+                     role: (meta.role as UserRole) || 'STUDENT',
+                     streak: 0,
+                     last_activity_date: new Date().toISOString()
+                 };
+                 
+                 // Attempt to Sync to DB (Upsert)
+                 await supabase.from('profiles').upsert(newProfile);
+                 
+                 return {
+                     id: newProfile.id,
+                     email: newProfile.email,
+                     name: newProfile.name,
+                     role: newProfile.role,
+                     streak: newProfile.streak,
+                     lastActivityDate: newProfile.last_activity_date
+                 };
+             }
+        }
+    }
+
+    console.error("Critical: Could not fetch or recover user profile.");
+    return null;
   }
 
   // --- Courses ---
@@ -228,7 +272,7 @@ class DatabaseService {
 
   // --- Enrollments & Progress ---
   async getEnrollments(studentId: string): Promise<Enrollment[]> {
-    if (!isSupabaseConfigured) return []; // Mock enrollments not persistent in this simple fallback
+    if (!isSupabaseConfigured) return []; 
 
     const { data, error } = await supabase
       .from('enrollments')
@@ -345,6 +389,7 @@ export const authService = {
         }
         return supabase.auth.signInWithPassword({ email, password });
     },
+    
     async signUp(email: string, password: string, name: string, role: UserRole) {
         if (!isSupabaseConfigured) {
              // Mock Signup
@@ -352,14 +397,27 @@ export const authService = {
              return { data: { user: { id: newId, email } }, error: null };
         }
 
+        // 1. Sign Up with Metadata (Critical for RLS/Recovery)
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
+            options: {
+                data: {
+                    name,
+                    role,
+                    streak: 0,
+                    last_activity_date: new Date().toISOString()
+                }
+            }
         });
         
+        // 2. Attempt to create profile row immediately
         if (!error && data.user) {
-            // Create profile
-            await supabase.from('profiles').insert({
+            // If email confirmation is ON, data.user exists but session is null.
+            // RLS policies using auth.uid() might block this insert if no session.
+            // However, we rely on getUserProfile's self-healing if this fails.
+            
+            const { error: profileError } = await supabase.from('profiles').insert({
                 id: data.user.id,
                 email: email,
                 name: name,
@@ -367,9 +425,14 @@ export const authService = {
                 streak: 0,
                 last_activity_date: new Date().toISOString()
             });
+            
+            if (profileError) {
+                console.log("Profile insert skipped (likely waiting for email confirm). Metadata saved.", profileError.message);
+            }
         }
         return { data, error };
     },
+    
     async logout() {
         if (!isSupabaseConfigured) return;
         return supabase.auth.signOut();
