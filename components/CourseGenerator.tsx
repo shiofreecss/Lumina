@@ -24,24 +24,20 @@ export const CourseGenerator: React.FC<Props> = ({ teacherId, onSuccess, onCance
   const [expandedModule, setExpandedModule] = useState<string | null>(null);
 
   const handleGenerate = async () => {
-    if (!process.env.API_KEY) {
-      alert("Please configure your API_KEY in the environment.");
-      return;
-    }
+    // API Key is now handled internally by the service via process.env.API_KEY
     setStep('generating');
     try {
       const course = await generateCourse(
         formData.topic, 
         formData.difficulty, 
         formData.audience, 
-        formData.duration,
-        process.env.API_KEY
+        formData.duration
       );
       setGeneratedCourse(course);
       setStep('review');
     } catch (error) {
       console.error(error);
-      alert("Failed to generate course. Please try again.");
+      alert("Failed to generate course. Please ensure your API key is configured correctly and try again.");
       setStep('input');
     }
   };
@@ -97,7 +93,7 @@ export const CourseGenerator: React.FC<Props> = ({ teacherId, onSuccess, onCance
         <div className="text-center space-y-3">
           <h3 className="text-2xl font-bold text-stone-800 dark:text-white">Consulting the AI...</h3>
           <p className="text-stone-500 dark:text-stone-400 max-w-md text-lg">
-            Gemini is weaving knowledge into a structured curriculum for "{formData.topic}".
+            Gemini Pro is weaving knowledge into a structured curriculum for "{formData.topic}".
           </p>
         </div>
       </div>

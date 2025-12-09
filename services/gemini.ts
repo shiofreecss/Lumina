@@ -26,7 +26,7 @@ const courseSchema = {
               type: Type.OBJECT,
               properties: {
                 title: { type: Type.STRING },
-                content: { type: Type.STRING, description: "Educational content in Markdown format, at least 300 words." },
+                content: { type: Type.STRING, description: "Educational content in Markdown format, at least 300 words. Be detailed and structured." },
                 durationMinutes: { type: Type.INTEGER },
                 quiz: {
                   type: Type.ARRAY,
@@ -56,12 +56,10 @@ export const generateCourse = async (
   topic: string,
   difficulty: string,
   targetAudience: string,
-  duration: string,
-  apiKey: string
+  duration: string
 ): Promise<Partial<Course>> => {
-  if (!apiKey) throw new Error("API Key is required");
-
-  const ai = new GoogleGenAI({ apiKey });
+  // Use the API key directly from the environment variable as per guidelines
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
   const prompt = `
     Create a comprehensive educational course about "${topic}".
@@ -76,12 +74,13 @@ export const generateCourse = async (
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-pro-preview',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
         responseSchema: courseSchema,
-        temperature: 0.3, // Lower temperature for more structured/factual output
+        temperature: 0.2,
+        systemInstruction: "You are an expert curriculum designer. Create detailed, structured, and accurate educational content."
       }
     });
 
